@@ -6,16 +6,9 @@
   <title>Pelacakan Penjualan Karung Gadu 2025</title>
   <style>
     :root{
-      --bg:#0b1220;
-      --card:#0f172a;
-      --muted:#94a3b8;
-      --text:#e2e8f0;
-      --primary:#0ea5e9;
-      --primary-600:#0284c7;
-      --green:#22c55e;
-      --red:#ef4444;
-      --yellow:#f59e0b;
-      --violet:#8b5cf6;
+      --bg:#0b1220; --card:#0f172a; --muted:#94a3b8; --text:#e2e8f0;
+      --primary:#0ea5e9; --primary-600:#0284c7; --green:#22c55e;
+      --red:#ef4444; --yellow:#f59e0b; --violet:#8b5cf6;
     }
     *{box-sizing:border-box}
     body{
@@ -44,6 +37,8 @@
     }
     .btn.secondary{background:linear-gradient(180deg,#64748b,#475569); box-shadow:none}
     .btn:active{transform:translateY(1px)}
+    .auth-msg{min-height:18px;font-size:13px;margin-left:auto;color:#fca5a5}
+    .auth-msg.ok{color:#86efac}
 
     /* Form grid */
     .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
@@ -71,22 +66,13 @@
     .status-lunas{background:rgba(34,197,94,.15); color:#86efac; border:1px solid rgba(34,197,94,.35)}
     .status-belum{background:rgba(239,68,68,.15); color:#fca5a5; border:1px solid rgba(239,68,68,.35)}
 
-    /* Actions - tombol sebaris & sama lebar */
+    /* Actions - sebaris & sama lebar */
     .btn-actions{
-      display:flex;
-      gap:8px;
-      align-items:center;
-      justify-content:space-between;
-      margin-top:10px;
-      flex-wrap:nowrap;
+      display:flex; gap:8px; align-items:center; justify-content:space-between;
+      margin-top:10px; flex-wrap:nowrap;
     }
     .btn-actions .btn{
-      flex:1 1 0;
-      min-width:0;
-      border-radius:12px;
-      padding:10px 8px;
-      text-align:center;
-      font-size:14px;
+      flex:1 1 0; min-width:0; border-radius:12px; padding:10px 8px; text-align:center; font-size:14px;
     }
     .btn-copy{background:linear-gradient(180deg,#94a3b8,#64748b)}
     .btn-yellow{background:linear-gradient(180deg,#fbbf24,#f59e0b); color:#1f2937}
@@ -112,6 +98,7 @@
     <input type="password" id="admin_pass" placeholder="Password admin (untuk ubah data)"/>
     <button id="login_btn" class="btn" onclick="login()">Login</button>
     <button id="logout_btn" class="btn secondary" style="display:none" onclick="logout()">Keluar</button>
+    <span id="auth_msg" class="auth-msg"></span>
   </div>
 
   <h1>Gadu 2025</h1>
@@ -176,28 +163,53 @@
     });
   }
 
-  /* ===== Auth sederhana (password disimpan localStorage) ===== */
+  /* ===== Auth sederhana (password divalidasi ke server) ===== */
+  function setAuthMsg(msg, ok=false){
+    const m=document.getElementById("auth_msg");
+    m.textContent = msg || "";
+    m.className = "auth-msg" + (ok ? " ok":"");
+  }
   function isLoggedIn(){ return !!localStorage.getItem("authToken"); }
   function getToken(){ return localStorage.getItem("authToken")||""; }
-  function login(){
+
+  async function login(){
     const pass = document.getElementById("admin_pass").value.trim();
-    if(!pass){ alert("Masukkan password admin."); return; }
-    localStorage.setItem("authToken", pass);
-    document.getElementById("admin_pass").value="";
-    updateAuthUI();
-    tampilkanLaporan();
+    if(!pass){ setAuthMsg("Masukkan password admin."); return; }
+    setAuthMsg("Memeriksa...");
+    try{
+      // validasi ke server (endpoint ringan)
+      const res = await fetch("/api/auth", { method:"POST", headers:{ "Authorization":"Bearer "+pass } });
+      if(res.ok){
+        localStorage.setItem("authToken", pass);
+        document.getElementById("admin_pass").value="";
+        setAuthMsg("Login berhasil.", true);
+        updateAuthUI(); tampilkanLaporan();
+      }else{
+        localStorage.removeItem("authToken");
+        setAuthMsg("Password salah. Coba lagi.");
+        updateAuthUI();
+      }
+    }catch(e){
+      localStorage.removeItem("authToken");
+      setAuthMsg("Gagal terhubung ke server.");
+      updateAuthUI();
+    }
   }
+
   function logout(){
     localStorage.removeItem("authToken");
-    updateAuthUI();
-    tampilkanLaporan();
+    setAuthMsg("Anda telah keluar.");
+    updateAuthUI(); tampilkanLaporan();
   }
+
   function updateAuthUI(){
     const logged = isLoggedIn();
     document.getElementById("admin_form").style.display = logged ? "block":"none";
     document.getElementById("login_btn").style.display = logged ? "none":"inline-block";
     document.getElementById("logout_btn").style.display = logged ? "inline-block":"none";
+    // Tampilkan/ sembunyikan elemen admin-only (kecuali tombol Simpan)
     document.querySelectorAll(".admin-only").forEach(n=> n.style.display = logged ? "" : "none");
+    // Laporan keuangan hanya saat login
     document.getElementById("laporan-keuangan-container").style.display = logged ? "block" : "none";
   }
 
@@ -324,7 +336,8 @@ Tanggal Update: ${d.tanggal_update || "-"}`;
                   style="${isLoggedIn()?'':'display:none'}"
                   onclick="toggleEdit('${nama}')">Edit</button>
 
-          <button class="btn btn-green btn-save admin-only"
+          <!-- Simpan: tidak punya class admin-only supaya tetap tersembunyi saat tidak edit -->
+          <button class="btn btn-green btn-save"
                   style="display:none"
                   onclick="simpanEdit('${nama}')">Simpan</button>
 
@@ -360,10 +373,11 @@ Tanggal Update: ${d.tanggal_update || "-"}`;
       document.getElementById("laba_bersih").innerText = "Rp " + formatNumber(labaBersih);
     }
 
-    updateAuthUI(); // pastikan tombol admin-only sinkron setelah render
+    updateAuthUI(); // sinkron tombol admin-only setelah render
   }
 
   function toggleEdit(nama){
+    if(!isLoggedIn()){ alert("Login dulu untuk mengedit."); return; }
     const card = document.querySelector(`.data-item[data-nama="${nama}"]`);
     card.querySelector(".edit-fields").style.display="block";
     const btnEdit = card.querySelector(".btn-edit");
