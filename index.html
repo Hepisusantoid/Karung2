@@ -5,51 +5,98 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Pelacakan Penjualan Karung Gadu 2025</title>
   <style>
-    body{font-family:Arial, sans-serif;background:#f0f2f5;margin:0;padding:16px;color:#333}
-    .container{max-width:780px;margin:0 auto;background:#fff;border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,.08);padding:20px}
-    h1,h2{text-align:center;color:#0a58ca;margin:6px 0 14px}
-    /* Auth bar */
-    .auth-bar{display:flex;gap:10px;align-items:center;justify-content:flex-end;margin-bottom:12px;flex-wrap:wrap}
-    .auth-bar input{flex:1 1 180px;padding:8px 10px;border:1px solid #ddd;border-radius:8px}
-    .auth-bar button{padding:10px 14px;border:none;border-radius:8px;color:#fff;background:#0a58ca;cursor:pointer}
-    .auth-bar .secondary{background:#6c757d}
-    /* Form grid (lebih horizontal) */
+    :root{
+      --bg:#0b1220;
+      --card:#0f172a;
+      --muted:#94a3b8;
+      --text:#e2e8f0;
+      --primary:#0ea5e9;
+      --primary-600:#0284c7;
+      --green:#22c55e;
+      --red:#ef4444;
+      --yellow:#f59e0b;
+      --violet:#8b5cf6;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;background:linear-gradient(180deg,#0b1220,#0b1220 40%,#0d1b2a 100%);
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+      color:var(--text); padding:16px;
+    }
+    .container{
+      max-width:860px;margin:0 auto;background:rgba(255,255,255,0.05);
+      border:1px solid rgba(255,255,255,0.08); backdrop-filter: blur(6px);
+      border-radius:18px; padding:18px 16px; box-shadow:0 20px 40px rgba(0,0,0,.35);
+    }
+    h1{margin:6px 0 14px; text-align:center; font-size:28px; letter-spacing:.5px}
+    h2{margin:12px 0 10px; text-align:center; color:#c7d2fe}
+    /* Auth */
+    .auth-bar{display:flex;gap:10px;justify-content:flex-end;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+    .auth-bar input{
+      flex:1 1 200px;background:#0b1628;border:1px solid rgba(255,255,255,0.12);
+      color:var(--text); padding:10px 12px; border-radius:10px; outline:none;
+    }
+    .btn{
+      padding:11px 14px; border:none; border-radius:12px; color:#fff; cursor:pointer;
+      background: linear-gradient(180deg, var(--primary), var(--primary-600));
+      box-shadow:0 10px 18px rgba(14,165,233,.25); transition:transform .06s ease,opacity .2s;
+    }
+    .btn.secondary{background:linear-gradient(180deg,#64748b,#475569); box-shadow:none}
+    .btn:active{transform:translateY(1px)}
+    /* Form grid */
     .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
-    @media (max-width:520px){ .grid{grid-template-columns:1fr} }
-    label{font-weight:700;margin-bottom:6px;display:block}
-    input[type="text"]{width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;font-size:15px;box-sizing:border-box}
-    .btn-row{display:flex;gap:12px;margin-top:8px}
-    .btn{flex:1;padding:12px;border:none;border-radius:10px;font-size:15px;cursor:pointer;color:#fff;background:#0a58ca}
-    .btn:hover{opacity:.93}
-    /* Kartu pembeli */
-    .data-item{background:#e9f5ff;border-left:6px solid #0d6efd;padding:12px;border-radius:10px;margin:12px 0}
-    .lunas{border-color:#28a745;background:#eafff0}
-    .belum-lunas{border-color:#dc3545;background:#fff0f0}
+    @media (max-width:560px){ .grid{grid-template-columns:1fr} }
+    label{display:block;font-weight:700;margin-bottom:6px;color:#cbd5e1}
+    input[type="text"]{
+      width:100%; padding:12px; border:1px solid rgba(255,255,255,.12);
+      border-radius:12px; background:#0b1628; color:var(--text); font-size:15px;
+    }
+    .btn-row{display:flex;gap:12px;margin-top:12px}
+    /* Cards */
+    .data-item{
+      background:#0b1628; border:1px solid rgba(255,255,255,.08);
+      border-left:6px solid var(--primary); border-radius:14px; padding:12px; margin:12px 0;
+    }
+    .lunas{border-left-color:var(--green)}
+    .belum-lunas{border-left-color:var(--red)}
     .data-item p{margin:4px 0}
-    .uang{font-weight:700;color:#0d6efd}
-    .btn-actions{display:flex;gap:10px;margin-top:10px}
-    .btn-yellow{background:#ffc107;color:#000}
-    .btn-green{background:#28a745}
-    .btn-red{background:#dc3545}
-    .edit-fields{display:none;margin-top:8px}
-    .edit-fields input{margin-bottom:6px}
-    /* Laporan keuangan */
-    .laporan{margin-top:18px;padding:16px;border:2px solid #8a2be2;border-radius:12px;background:#f8f4ff}
+    .uang{font-weight:800; color:#93c5fd}
+    .status-badge{
+      display:inline-block; padding:3px 8px; border-radius:999px;
+      font-size:12px; margin-left:6px; vertical-align:middle;
+    }
+    .status-lunas{background:rgba(34,197,94,.15); color:#86efac; border:1px solid rgba(34,197,94,.35)}
+    .status-belum{background:rgba(239,68,68,.15); color:#fca5a5; border:1px solid rgba(239,68,68,.35)}
+    /* Actions */
+    .btn-actions{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap}
+    .pill{flex:1 1 90px; text-align:center}
+    .btn-yellow{background:linear-gradient(180deg,#fbbf24,#f59e0b); color:#1f2937}
+    .btn-red{background:linear-gradient(180deg,#f87171,#ef4444)}
+    .btn-copy{background:linear-gradient(180deg,#94a3b8,#64748b)}
+    .edit-fields{display:none;margin-top:10px}
+    .edit-fields input{margin-bottom:8px}
+    /* Laporan */
+    .laporan{
+      margin-top:16px; padding:16px; border-radius:16px;
+      background:linear-gradient(180deg,rgba(139,92,246,.15),rgba(139,92,246,.08));
+      border:1px solid rgba(139,92,246,.5);
+    }
+    .laporan p{margin:6px 0}
   </style>
 </head>
 <body>
 <div class="container">
 
-  <!-- BAR LOGIN -->
+  <!-- LOGIN -->
   <div class="auth-bar">
     <input type="password" id="admin_pass" placeholder="Password admin (untuk ubah data)"/>
-    <button id="login_btn" onclick="login()">Login</button>
-    <button id="logout_btn" class="secondary" style="display:none" onclick="logout()">Keluar</button>
+    <button id="login_btn" class="btn" onclick="login()">Login</button>
+    <button id="logout_btn" class="btn secondary" style="display:none" onclick="logout()">Keluar</button>
   </div>
 
   <h1>Gadu 2025</h1>
 
-  <!-- FORM INPUT (tersembunyi bila belum login) -->
+  <!-- FORM ADMIN (muncul hanya setelah login) -->
   <div id="admin_form" style="display:none">
     <div class="grid">
       <div>
@@ -79,9 +126,11 @@
     <div id="daftar_penjualan"></div>
   </div>
 
+  <!-- LAPORAN KEUANGAN (disembunyikan jika belum login) -->
   <div id="laporan-keuangan-container" style="display:none;">
     <div class="laporan">
       <h2>Laporan Keuangan</h2>
+      <p><strong>Kodi Terjual:</strong> <span id="total_kodi">0</span> kodi</p>
       <p><strong>Omzet:</strong> <span id="omzet">Rp 0</span></p>
       <p><strong>Total Modal:</strong> <span id="total_modal">Rp 0</span></p>
       <p><strong>Laba Kotor:</strong> <span id="laba_kotor">Rp 0</span></p>
@@ -95,20 +144,19 @@
   const hargaPerKodi = 45000;
   let dataPelanggan = {};
 
-  /* ===== UTIL ANGKA ===== */
+  /* ===== Util angka ===== */
   function formatNumber(num){ if(num==null||isNaN(num)) return "0"; return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g,"."); }
   function parseNumber(str){ return parseInt((str||"0").replace(/\./g,""))||0; }
 
-  // auto-format input angka (kecuali nama)
+  // Auto-format untuk input angka
   function wireNumberFormatting(){
     ["kodi_terjual","sudah_bayar","harga_modal"].forEach(id=>{
-      const el=document.getElementById(id);
-      if(!el) return;
+      const el=document.getElementById(id); if(!el) return;
       el.addEventListener("input",()=>{ el.value = formatNumber(parseNumber(el.value)); });
     });
   }
 
-  /* ====== AUTH (SIMPLE PASSWORD) ====== */
+  /* ===== Auth sederhana (password disimpan localStorage) ===== */
   function isLoggedIn(){ return !!localStorage.getItem("authToken"); }
   function getToken(){ return localStorage.getItem("authToken")||""; }
   function login(){
@@ -117,43 +165,41 @@
     localStorage.setItem("authToken", pass);
     document.getElementById("admin_pass").value="";
     updateAuthUI();
+    tampilkanLaporan();
   }
   function logout(){
     localStorage.removeItem("authToken");
     updateAuthUI();
+    tampilkanLaporan();
   }
   function updateAuthUI(){
     const logged = isLoggedIn();
     document.getElementById("admin_form").style.display = logged ? "block":"none";
     document.getElementById("login_btn").style.display = logged ? "none":"inline-block";
     document.getElementById("logout_btn").style.display = logged ? "inline-block":"none";
-    // toggle tombol Edit/Hapus di kartu
+    // tombol admin-only di kartu
     document.querySelectorAll(".admin-only").forEach(n=> n.style.display = logged ? "" : "none");
+    // laporan keuangan hanya saat login
+    document.getElementById("laporan-keuangan-container").style.display = logged ? "block" : "none";
   }
 
-  /* ====== BACKEND PROXY (Vercel) ======
-     - GET  : /api/get       -> kembalikan object record
-     - PUT  : /api/update    -> body { record: {...} }  + Authorization: Bearer <pass>
-  ===================================== */
-
+  /* ===== API proxy via Vercel ===== */
   async function muatData(){
     try{
       const res = await fetch("/api/get");
       const record = await res.json();
       dataPelanggan = record || {};
-      // fallback tanggal untuk data lama
+      // tanggal fallback untuk data lama
       Object.keys(dataPelanggan).forEach(n=>{
         if(!dataPelanggan[n].tanggal_update) dataPelanggan[n].tanggal_update = "-";
       });
       tampilkanLaporan();
     }catch(e){
-      console.error("Gagal muat:", e);
-      alert("Gagal memuat data.");
+      console.error("Gagal muat:", e); alert("Gagal memuat data.");
     }
   }
-
   async function simpanData(){
-    if(!isLoggedIn()){ alert("Silakan login dulu untuk menyimpan perubahan."); return; }
+    if(!isLoggedIn()){ alert("Silakan login dulu untuk menyimpan."); return; }
     try{
       const res = await fetch("/api/update",{
         method:"PUT",
@@ -163,31 +209,18 @@
         },
         body: JSON.stringify({ record: dataPelanggan })
       });
-      if(res.status===401||res.status===403){
-        alert("Password admin salah / tidak berhak.");
-        return;
-      }
-      if(!res.ok){
-        const t = await res.text();
-        console.error("Gagal simpan:", t);
-        alert("Gagal menyimpan data.");
-      }
-    }catch(e){
-      console.error("Gagal simpan:", e);
-      alert("Gagal menyimpan data.");
-    }
+      if(res.status===401||res.status===403){ alert("Password admin salah / tidak berhak."); return; }
+      if(!res.ok){ console.error(await res.text()); alert("Gagal menyimpan data."); }
+    }catch(e){ console.error(e); alert("Gagal menyimpan data."); }
   }
 
-  /* ====== FITUR APLIKASI (KONSISTEN) ====== */
-
+  /* ===== Fitur aplikasi (konsisten) ===== */
   function tambahData(){
     if(!isLoggedIn()){ alert("Login dulu untuk menambah data."); return; }
-
     const nama = document.getElementById("nama_pelanggan").value.trim();
     const kodi = parseNumber(document.getElementById("kodi_terjual").value);
     const bayar = parseNumber(document.getElementById("sudah_bayar").value);
     const modal = parseNumber(document.getElementById("harga_modal").value);
-
     if(!nama || kodi<=0){ alert("Isi nama & kodi yang valid."); return; }
 
     dataPelanggan[nama] = {
@@ -205,11 +238,33 @@
     document.getElementById("harga_modal").value="0";
   }
 
+  function copyData(nama){
+    const d = dataPelanggan[nama];
+    const totalTagihan = d.kodi_terjual * hargaPerKodi;
+    const sisaUtang = totalTagihan - d.pembayaran_awal;
+    const status = sisaUtang>0 ? "Belum Lunas" : "Lunas";
+    const text =
+`Nama: ${nama}
+Kodi: ${d.kodi_terjual}
+Total Bayar: Rp ${formatNumber(totalTagihan)}
+Sudah Bayar: Rp ${formatNumber(d.pembayaran_awal)}
+Sisa Utang: Rp ${formatNumber(sisaUtang)}
+Status: ${status}
+Tanggal Update: ${d.tanggal_update || "-"}`;
+    navigator.clipboard?.writeText(text)
+      .then(()=>alert("Data disalin ke clipboard."))
+      .catch(()=>{ // fallback
+        const ta=document.createElement("textarea"); ta.value=text; document.body.appendChild(ta);
+        ta.select(); document.execCommand("copy"); document.body.removeChild(ta);
+        alert("Data disalin ke clipboard.");
+      });
+  }
+
   function tampilkanLaporan(){
     const wrap = document.getElementById("daftar_penjualan");
     wrap.innerHTML = "";
 
-    let totalOmzet=0, totalUtang=0, totalModal=0;
+    let totalOmzet=0, totalUtang=0, totalModal=0, totalKodi=0;
 
     const arr = Object.keys(dataPelanggan).map(k=>({nama:k, data:dataPelanggan[k]}));
     // Belum lunas di atas
@@ -227,6 +282,7 @@
       const statusClass = sisaUtang>0 ? "belum-lunas":"lunas";
       const statusText  = sisaUtang>0 ? "Belum Lunas":"Lunas";
 
+      totalKodi  += data.kodi_terjual;
       totalOmzet += totalTagihan;
       totalUtang += sisaUtang;
       totalModal += data.kodi_terjual * data.harga_modal;
@@ -239,14 +295,17 @@
         <p><strong>Kodi:</strong> ${formatNumber(data.kodi_terjual)}</p>
         <p><strong>Total Bayar:</strong> <span class="uang">Rp ${formatNumber(totalTagihan)}</span></p>
         <p><strong>Sudah Bayar:</strong> <span class="uang">Rp ${formatNumber(data.pembayaran_awal)}</span></p>
-        <p><strong>Sisa Utang:</strong> <span class="uang">Rp ${formatNumber(sisaUtang)}</span></p>
-        <p><strong>Status:</strong> ${statusText}</p>
+        <p><strong>Sisa Utang:</strong> <span class="uang">Rp ${formatNumber(sisaUtang)}</span>
+           <span class="status-badge ${statusText==='Lunas'?'status-lunas':'status-belum'}">${statusText}</span></p>
         <p><strong>Tanggal Update:</strong> ${data.tanggal_update || "-"}</p>
 
-        <div class="btn-actions admin-only" style="${isLoggedIn()?"":"display:none"}">
-          <button class="btn-yellow" onclick="toggleEdit('${nama}')">Edit</button>
-          <button class="btn-green"  style="display:none" onclick="simpanEdit('${nama}')">Simpan</button>
-          <button class="btn-red"    onclick="hapusData('${nama}')">Hapus</button>
+        <div class="btn-actions">
+          <button class="btn pill btn-copy" onclick="copyData('${nama}')">Salin</button>
+          <div class="admin-only" style="${isLoggedIn()?'':'display:none'};display:flex;gap:10px;flex:1">
+            <button class="btn pill btn-yellow" onclick="toggleEdit('${nama}')">Edit</button>
+            <button class="btn pill" style="display:none" onclick="simpanEdit('${nama}')">Simpan</button>
+            <button class="btn pill btn-red" onclick="hapusData('${nama}')">Hapus</button>
+          </div>
         </div>
 
         <div class="edit-fields">
@@ -257,7 +316,7 @@
       `;
       wrap.appendChild(el);
 
-      // wiring formatter untuk input edit di kartu
+      // format saat edit (kartu)
       el.querySelectorAll(".edit-kodi,.edit-bayar,.edit-modal").forEach(inp=>{
         inp.addEventListener("input", ()=>{ inp.value = formatNumber(parseNumber(inp.value)); });
       });
@@ -266,18 +325,27 @@
     const labaKotor = totalOmzet - totalModal;
     const labaBersih = labaKotor - totalUtang;
 
-    document.getElementById("omzet").innerText       = "Rp " + formatNumber(totalOmzet);
-    document.getElementById("total_modal").innerText = "Rp " + formatNumber(totalModal);
-    document.getElementById("laba_kotor").innerText  = "Rp " + formatNumber(labaKotor);
-    document.getElementById("laba_bersih").innerText = "Rp " + formatNumber(labaBersih);
-    document.getElementById("laporan-keuangan-container").style.display = "block";
+    // tampilkan laporan hanya saat login
+    const logged = isLoggedIn();
+    document.getElementById("laporan-keuangan-container").style.display = logged ? "block":"none";
+    if(logged){
+      document.getElementById("total_kodi").innerText  = formatNumber(totalKodi);
+      document.getElementById("omzet").innerText       = "Rp " + formatNumber(totalOmzet);
+      document.getElementById("total_modal").innerText = "Rp " + formatNumber(totalModal);
+      document.getElementById("laba_kotor").innerText  = "Rp " + formatNumber(labaKotor);
+      document.getElementById("laba_bersih").innerText = "Rp " + formatNumber(labaBersih);
+    }
+
+    updateAuthUI(); // pastikan tombol admin-only sinkron setelah render
   }
 
   function toggleEdit(nama){
     const card = document.querySelector(`.data-item[data-nama="${nama}"]`);
     card.querySelector(".edit-fields").style.display="block";
-    const [btnEdit, btnSimpan] = card.querySelectorAll(".btn-actions button");
-    btnEdit.style.display="none"; btnSimpan.style.display="inline-block";
+    const btns = card.querySelectorAll(".btn-actions .btn");
+    // urutan: Salin (0), Edit (1), Simpan (2), Hapus (3) -> hanya ubah Edit/Simpan
+    btns[1].style.display="none"; // Edit
+    btns[2].style.display="inline-block"; // Simpan
   }
 
   function simpanEdit(nama){
