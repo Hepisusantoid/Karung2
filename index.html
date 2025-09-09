@@ -24,16 +24,17 @@
       color:var(--text); padding:16px;
     }
     .container{
-      max-width:860px;margin:0 auto;background:rgba(255,255,255,0.05);
+      max-width:880px;margin:0 auto;background:rgba(255,255,255,0.05);
       border:1px solid rgba(255,255,255,0.08); backdrop-filter: blur(6px);
       border-radius:18px; padding:18px 16px; box-shadow:0 20px 40px rgba(0,0,0,.35);
     }
     h1{margin:6px 0 14px; text-align:center; font-size:28px; letter-spacing:.5px}
     h2{margin:12px 0 10px; text-align:center; color:#c7d2fe}
+
     /* Auth */
     .auth-bar{display:flex;gap:10px;justify-content:flex-end;align-items:center;flex-wrap:wrap;margin-bottom:10px}
     .auth-bar input{
-      flex:1 1 200px;background:#0b1628;border:1px solid rgba(255,255,255,0.12);
+      flex:1 1 220px;background:#0b1628;border:1px solid rgba(255,255,255,0.12);
       color:var(--text); padding:10px 12px; border-radius:10px; outline:none;
     }
     .btn{
@@ -43,6 +44,7 @@
     }
     .btn.secondary{background:linear-gradient(180deg,#64748b,#475569); box-shadow:none}
     .btn:active{transform:translateY(1px)}
+
     /* Form grid */
     .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
     @media (max-width:560px){ .grid{grid-template-columns:1fr} }
@@ -52,7 +54,8 @@
       border-radius:12px; background:#0b1628; color:var(--text); font-size:15px;
     }
     .btn-row{display:flex;gap:12px;margin-top:12px}
-    /* Cards */
+
+    /* Kartu pembeli */
     .data-item{
       background:#0b1628; border:1px solid rgba(255,255,255,.08);
       border-left:6px solid var(--primary); border-radius:14px; padding:12px; margin:12px 0;
@@ -67,14 +70,31 @@
     }
     .status-lunas{background:rgba(34,197,94,.15); color:#86efac; border:1px solid rgba(34,197,94,.35)}
     .status-belum{background:rgba(239,68,68,.15); color:#fca5a5; border:1px solid rgba(239,68,68,.35)}
-    /* Actions */
-    .btn-actions{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap}
-    .pill{flex:1 1 90px; text-align:center}
-    .btn-yellow{background:linear-gradient(180deg,#fbbf24,#f59e0b); color:#1f2937}
-    .btn-red{background:linear-gradient(180deg,#f87171,#ef4444)}
+
+    /* Actions - tombol sebaris & sama lebar */
+    .btn-actions{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      justify-content:space-between;
+      margin-top:10px;
+      flex-wrap:nowrap;
+    }
+    .btn-actions .btn{
+      flex:1 1 0;
+      min-width:0;
+      border-radius:12px;
+      padding:10px 8px;
+      text-align:center;
+      font-size:14px;
+    }
     .btn-copy{background:linear-gradient(180deg,#94a3b8,#64748b)}
+    .btn-yellow{background:linear-gradient(180deg,#fbbf24,#f59e0b); color:#1f2937}
+    .btn-green{background:linear-gradient(180deg,#22c55e,#16a34a)}
+    .btn-red{background:linear-gradient(180deg,#f87171,#ef4444)}
     .edit-fields{display:none;margin-top:10px}
     .edit-fields input{margin-bottom:8px}
+
     /* Laporan */
     .laporan{
       margin-top:16px; padding:16px; border-radius:16px;
@@ -177,9 +197,7 @@
     document.getElementById("admin_form").style.display = logged ? "block":"none";
     document.getElementById("login_btn").style.display = logged ? "none":"inline-block";
     document.getElementById("logout_btn").style.display = logged ? "inline-block":"none";
-    // tombol admin-only di kartu
     document.querySelectorAll(".admin-only").forEach(n=> n.style.display = logged ? "" : "none");
-    // laporan keuangan hanya saat login
     document.getElementById("laporan-keuangan-container").style.display = logged ? "block" : "none";
   }
 
@@ -253,7 +271,7 @@ Status: ${status}
 Tanggal Update: ${d.tanggal_update || "-"}`;
     navigator.clipboard?.writeText(text)
       .then(()=>alert("Data disalin ke clipboard."))
-      .catch(()=>{ // fallback
+      .catch(()=>{
         const ta=document.createElement("textarea"); ta.value=text; document.body.appendChild(ta);
         ta.select(); document.execCommand("copy"); document.body.removeChild(ta);
         alert("Data disalin ke clipboard.");
@@ -300,12 +318,19 @@ Tanggal Update: ${d.tanggal_update || "-"}`;
         <p><strong>Tanggal Update:</strong> ${data.tanggal_update || "-"}</p>
 
         <div class="btn-actions">
-          <button class="btn pill btn-copy" onclick="copyData('${nama}')">Salin</button>
-          <div class="admin-only" style="${isLoggedIn()?'':'display:none'};display:flex;gap:10px;flex:1">
-            <button class="btn pill btn-yellow" onclick="toggleEdit('${nama}')">Edit</button>
-            <button class="btn pill" style="display:none" onclick="simpanEdit('${nama}')">Simpan</button>
-            <button class="btn pill btn-red" onclick="hapusData('${nama}')">Hapus</button>
-          </div>
+          <button class="btn btn-copy" onclick="copyData('${nama}')">Salin</button>
+
+          <button class="btn btn-yellow btn-edit admin-only"
+                  style="${isLoggedIn()?'':'display:none'}"
+                  onclick="toggleEdit('${nama}')">Edit</button>
+
+          <button class="btn btn-green btn-save admin-only"
+                  style="display:none"
+                  onclick="simpanEdit('${nama}')">Simpan</button>
+
+          <button class="btn btn-red btn-delete admin-only"
+                  style="${isLoggedIn()?'':'display:none'}"
+                  onclick="hapusData('${nama}')">Hapus</button>
         </div>
 
         <div class="edit-fields">
@@ -325,7 +350,6 @@ Tanggal Update: ${d.tanggal_update || "-"}`;
     const labaKotor = totalOmzet - totalModal;
     const labaBersih = labaKotor - totalUtang;
 
-    // tampilkan laporan hanya saat login
     const logged = isLoggedIn();
     document.getElementById("laporan-keuangan-container").style.display = logged ? "block":"none";
     if(logged){
@@ -342,10 +366,10 @@ Tanggal Update: ${d.tanggal_update || "-"}`;
   function toggleEdit(nama){
     const card = document.querySelector(`.data-item[data-nama="${nama}"]`);
     card.querySelector(".edit-fields").style.display="block";
-    const btns = card.querySelectorAll(".btn-actions .btn");
-    // urutan: Salin (0), Edit (1), Simpan (2), Hapus (3) -> hanya ubah Edit/Simpan
-    btns[1].style.display="none"; // Edit
-    btns[2].style.display="inline-block"; // Simpan
+    const btnEdit = card.querySelector(".btn-edit");
+    const btnSave = card.querySelector(".btn-save");
+    if (btnEdit) btnEdit.style.display="none";
+    if (btnSave) btnSave.style.display="inline-block";
   }
 
   function simpanEdit(nama){
