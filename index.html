@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Pelacakan Penjualan Karung Gadu 2025</title>
+  <title>Penjualan Karung – MT2 2025</title>
   <style>
     :root{
       --bg:#0b1220; --card:#0f172a; --muted:#94a3b8; --text:#e2e8f0;
@@ -17,17 +17,20 @@
       color:var(--text); padding:16px;
     }
     .container{
-      max-width:880px;margin:0 auto;background:rgba(255,255,255,0.05);
+      max-width:980px;margin:0 auto;background:rgba(255,255,255,0.05);
       border:1px solid rgba(255,255,255,0.08); backdrop-filter: blur(6px);
       border-radius:18px; padding:18px 16px; box-shadow:0 20px 40px rgba(0,0,0,.35);
     }
     h1{margin:6px 0 14px; text-align:center; font-size:28px; letter-spacing:.5px}
     h2{margin:12px 0 10px; text-align:center; color:#c7d2fe}
 
-    /* Auth */
-    .auth-bar{display:flex;gap:10px;justify-content:flex-end;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+    /* Top bar */
+    .topbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:12px}
+    .left{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .season-select{background:#0b1628;border:1px solid rgba(255,255,255,.12);color:var(--text);padding:10px;border-radius:10px}
+    .auth-bar{display:flex;gap:10px;align-items:center}
     .auth-bar input{
-      flex:1 1 220px;background:#0b1628;border:1px solid rgba(255,255,255,0.12);
+      width:200px;background:#0b1628;border:1px solid rgba(255,255,255,0.12);
       color:var(--text); padding:10px 12px; border-radius:10px; outline:none;
     }
     .btn{
@@ -37,14 +40,21 @@
     }
     .btn.secondary{background:linear-gradient(180deg,#64748b,#475569); box-shadow:none}
     .btn:active{transform:translateY(1px)}
-    .auth-msg{min-height:18px;font-size:13px;margin-left:auto;color:#fca5a5}
-    .auth-msg.ok{color:#86efac}
+    .notice{min-height:18px;font-size:13px;color:#fca5a5}
+    .notice.ok{color:#86efac}
+
+    /* Tabs */
+    .tabs{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:6px 0 12px}
+    .tab{padding:9px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.15);cursor:pointer}
+    .tab.active{background:#0b1628}
+    .section{display:none}
+    .section.active{display:block}
 
     /* Form grid */
     .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
-    @media (max-width:560px){ .grid{grid-template-columns:1fr} }
+    @media (max-width:640px){ .grid{grid-template-columns:1fr} }
     label{display:block;font-weight:700;margin-bottom:6px;color:#cbd5e1}
-    input[type="text"]{
+    input[type="text"], input[type="number"]{
       width:100%; padding:12px; border:1px solid rgba(255,255,255,.12);
       border-radius:12px; background:#0b1628; color:var(--text); font-size:15px;
     }
@@ -81,251 +91,448 @@
     .edit-fields{display:none;margin-top:10px}
     .edit-fields input{margin-bottom:8px}
 
-    /* Laporan */
-    .laporan{
+    /* Laporan / Stok / Analitik */
+    .panel{
       margin-top:16px; padding:16px; border-radius:16px;
       background:linear-gradient(180deg,rgba(139,92,246,.15),rgba(139,92,246,.08));
       border:1px solid rgba(139,92,246,.5);
     }
-    .laporan p{margin:6px 0}
+    .panel p{margin:6px 0}
+    .stock-box{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .stock-now{font-weight:800;color:#86efac}
+    .table{width:100%; border-collapse:collapse; margin-top:10px}
+    .table th,.table td{border-bottom:1px solid rgba(255,255,255,.1); padding:8px; text-align:left; font-size:14px}
   </style>
 </head>
 <body>
 <div class="container">
 
-  <!-- LOGIN -->
-  <div class="auth-bar">
-    <input type="password" id="admin_pass" placeholder="Password admin (untuk ubah data)"/>
-    <button id="login_btn" class="btn" onclick="login()">Login</button>
-    <button id="logout_btn" class="btn secondary" style="display:none" onclick="logout()">Keluar</button>
-    <span id="auth_msg" class="auth-msg"></span>
-  </div>
-
-  <h1>Gadu 2025</h1>
-
-  <!-- FORM ADMIN (muncul hanya setelah login) -->
-  <div id="admin_form" style="display:none">
-    <div class="grid">
-      <div>
-        <label for="nama_pelanggan">Nama</label>
-        <input type="text" id="nama_pelanggan" placeholder="cth: Hepi Susanto"/>
-      </div>
-      <div>
-        <label for="kodi_terjual">Kodi</label>
-        <input type="text" id="kodi_terjual" value="0"/>
-      </div>
-      <div>
-        <label for="sudah_bayar">Bayar</label>
-        <input type="text" id="sudah_bayar" value="0"/>
-      </div>
-      <div>
-        <label for="harga_modal">Modal/Kodi</label>
-        <input type="text" id="harga_modal" value="0"/>
-      </div>
+  <!-- Top bar -->
+  <div class="topbar">
+    <div class="left">
+      <strong>Musim:</strong>
+      <select id="season_select" class="season-select" onchange="changeSeason(this.value)"></select>
+      <span id="season_info" class="muted"></span>
     </div>
-    <div class="btn-row">
-      <button class="btn" onclick="tambahData()">Tambah</button>
+    <div class="auth-bar">
+      <input type="password" id="admin_pass" placeholder="Password admin"/>
+      <button id="login_btn" class="btn" onclick="login()">Login</button>
+      <button id="logout_btn" class="btn secondary" style="display:none" onclick="logout()">Keluar</button>
     </div>
   </div>
+  <div id="auth_msg" class="notice"></div>
 
-  <div id="hasil-penjualan">
-    <h2>Laporan Penjualan</h2>
-    <div id="daftar_penjualan"></div>
+  <!-- Tabs -->
+  <div class="tabs">
+    <div class="tab active" data-tab="sales">Penjualan</div>
+    <div class="tab" data-tab="stock">Stok</div>
+    <div class="tab" data-tab="analytics">Analitik MOS</div>
+    <div class="tab" data-tab="seasons">Musim</div>
   </div>
 
-  <!-- LAPORAN KEUANGAN (disembunyikan jika belum login) -->
-  <div id="laporan-keuangan-container" style="display:none;">
-    <div class="laporan">
-      <h2>Laporan Keuangan</h2>
-      <p><strong>Kodi Terjual:</strong> <span id="total_kodi">0</span> kodi</p>
-      <p><strong>Omzet:</strong> <span id="omzet">Rp 0</span></p>
-      <p><strong>Total Modal:</strong> <span id="total_modal">Rp 0</span></p>
-      <p><strong>Laba Kotor:</strong> <span id="laba_kotor">Rp 0</span></p>
-      <p><strong>Laba Bersih:</strong> <span id="laba_bersih">Rp 0</span></p>
+  <!-- PENJUALAN -->
+  <section id="sales" class="section active">
+    <h1>Penjualan – MT2 2025</h1>
+
+    <!-- Form admin (muncul setelah login) -->
+    <div id="admin_form" style="display:none">
+      <div class="grid">
+        <div>
+          <label for="nama_pelanggan">Nama</label>
+          <input type="text" id="nama_pelanggan" placeholder="cth: Hepi Susanto"/>
+        </div>
+        <div>
+          <label for="kodi_terjual">Kodi</label>
+          <input type="text" id="kodi_terjual" value="0"/>
+        </div>
+        <div>
+          <label for="sudah_bayar">Bayar</label>
+          <input type="text" id="sudah_bayar" value="0"/>
+        </div>
+        <div>
+          <label for="harga_modal">Modal/Kodi</label>
+          <input type="text" id="harga_modal" value="0"/>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn" onclick="tambahData()">Tambah</button>
+      </div>
     </div>
-  </div>
+
+    <div id="hasil-penjualan">
+      <h2>Daftar Penjualan</h2>
+      <div id="daftar_penjualan"></div>
+    </div>
+
+    <!-- Laporan keuangan (hanya saat login) -->
+    <div id="laporan-keuangan-container" style="display:none;">
+      <div class="panel">
+        <h2>Laporan Keuangan Musim Aktif</h2>
+        <p><strong>Kodi Terjual:</strong> <span id="total_kodi">0</span> kodi</p>
+        <p><strong>Omzet:</strong> <span id="omzet">Rp 0</span></p>
+        <p><strong>Total Modal:</strong> <span id="total_modal">Rp 0</span></p>
+        <p><strong>Laba Kotor:</strong> <span id="laba_kotor">Rp 0</span></p>
+        <p><strong>Laba Bersih:</strong> <span id="laba_bersih">Rp 0</span></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- STOK -->
+  <section id="stock" class="section">
+    <h1>Stok Musim Aktif</h1>
+    <div class="panel">
+      <div class="stock-box">
+        <div>Stok Sekarang:</div>
+        <div class="stock-now" id="stock_now">0 kodi</div>
+      </div>
+      <div class="btn-row" style="margin-top:10px">
+        <input type="text" id="stok_tambah" placeholder="Tambah stok (kodi)"/>
+        <button class="btn" onclick="tambahStokManual()">Tambah Stok</button>
+      </div>
+      <h3 style="margin-top:14px">Riwayat Stok</h3>
+      <table class="table" id="stok_hist">
+        <thead><tr><th>Waktu</th><th>Keterangan</th><th>Perubahan</th><th>Stok Akhir</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ANALITIK -->
+  <section id="analytics" class="section">
+    <h1>Analitik – Break-Even & MOS</h1>
+    <div class="panel">
+      <div class="grid">
+        <div>
+          <label>Biaya Tetap (Fixed Costs) Musim ini</label>
+          <input type="text" id="fixed_costs" value="0"/>
+        </div>
+        <div>
+          <label>Harga per Kodi (referensi)</label>
+          <input type="text" id="harga_kodi_ref" value="45.000" disabled/>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn" onclick="simpanFixedCosts()">Simpan Biaya Tetap</button>
+        <button class="btn secondary" onclick="hitungAnalitik()">Hitung Analitik</button>
+      </div>
+
+      <div style="margin-top:10px">
+        <p><strong>Penjualan Aktual:</strong> <span id="ana_sales">Rp 0</span></p>
+        <p><strong>Biaya Variabel (COGS):</strong> <span id="ana_cogs">Rp 0</span></p>
+        <p><strong>Contribution Margin Ratio (CM%):</strong> <span id="ana_cmr">0%</span></p>
+        <p><strong>Break-Even Sales:</strong> <span id="ana_bep_sales">Rp 0</span> (<span id="ana_bep_units">0</span> kodi)</p>
+        <p><strong>Margin of Safety Ratio:</strong> <span id="ana_mos">0%</span></p>
+        <p style="color:#94a3b8;font-size:13px;margin-top:6px">
+          MOS = (Penjualan Aktual − Penjualan BEP) / Penjualan Aktual
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- MUSIM -->
+  <section id="seasons" class="section">
+    <h1>Kelola Musim</h1>
+    <div class="panel">
+      <div class="grid">
+        <div>
+          <label>Musim Aktif</label>
+          <select id="season_select_2" class="season-select" onchange="changeSeason(this.value)"></select>
+        </div>
+        <div>
+          <label>Tambah Musim Baru</label>
+          <select id="season_add">
+            <option>MT1 2023</option>
+            <option>MT2 2023</option>
+            <option>MT1 2024</option>
+            <option>MT2 2024</option>
+            <option>MT1 2025</option>
+            <option>MT2 2025</option>
+          </select>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn" onclick="buatMusimBaru()">Buat Musim</button>
+      </div>
+      <p style="margin-top:10px;color:#94a3b8">Catatan: data lama otomatis dimasukkan ke <strong>MT2 2025</strong> saat migrasi.</p>
+    </div>
+  </section>
 
 </div>
 
 <script>
-  const hargaPerKodi = 45000;
-  let dataPelanggan = {};
+  /* ======================= KONFIG & STATE ======================= */
+  const HARGA_PER_KODI_GLOBAL = 45000; // referensi
+  let record = {};              // seluruh isi BIN (schema baru)
+  let activeSeasonKey = "MT2 2025";
 
   /* ===== Util angka ===== */
-  function formatNumber(num){ if(num==null||isNaN(num)) return "0"; return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g,"."); }
-  function parseNumber(str){ return parseInt((str||"0").replace(/\./g,""))||0; }
+  const fmt = n => (n==null||isNaN(n)) ? "0" : n.toString().replace(/\B(?=(\d{3})+(?!\d))/g,".");
+  const parseNum = s => parseInt(String(s||"0").replace(/\./g,""))||0;
+  const nowID = () => new Date().toLocaleString("id-ID");
 
-  // Auto-format untuk input angka
+  // format input angka
   function wireNumberFormatting(){
-    ["kodi_terjual","sudah_bayar","harga_modal"].forEach(id=>{
+    ["kodi_terjual","sudah_bayar","harga_modal","stok_tambah","fixed_costs"].forEach(id=>{
       const el=document.getElementById(id); if(!el) return;
-      el.addEventListener("input",()=>{ el.value = formatNumber(parseNumber(el.value)); });
+      el.addEventListener("input",()=>{ el.value = fmt(parseNum(el.value)); });
     });
   }
 
-  /* ===== Auth sederhana (password divalidasi ke server) ===== */
-  function setAuthMsg(msg, ok=false){
-    const m=document.getElementById("auth_msg");
-    m.textContent = msg || "";
-    m.className = "auth-msg" + (ok ? " ok":"");
-  }
-  function isLoggedIn(){ return !!localStorage.getItem("authToken"); }
-  function getToken(){ return localStorage.getItem("authToken")||""; }
+  /* ===== Auth (validasi ke server) ===== */
+  const isLoggedIn = () => !!localStorage.getItem("authToken");
+  const getToken   = () => localStorage.getItem("authToken")||"";
+  const setNotice  = (msg, ok=false) => { const m=document.getElementById("auth_msg"); m.textContent=msg||""; m.className="notice"+(ok?" ok":""); };
 
   async function login(){
     const pass = document.getElementById("admin_pass").value.trim();
-    if(!pass){ setAuthMsg("Masukkan password admin."); return; }
-    setAuthMsg("Memeriksa...");
+    if(!pass){ setNotice("Masukkan password admin."); return; }
+    setNotice("Memeriksa…");
     try{
-      // validasi ke server (endpoint ringan)
-      const res = await fetch("/api/auth", { method:"POST", headers:{ "Authorization":"Bearer "+pass } });
+      const res = await fetch("/api/auth",{method:"POST",headers:{Authorization:"Bearer "+pass}});
       if(res.ok){
         localStorage.setItem("authToken", pass);
         document.getElementById("admin_pass").value="";
-        setAuthMsg("Login berhasil.", true);
-        updateAuthUI(); tampilkanLaporan();
+        setNotice("Login berhasil.", true);
+        updateAuthUI(); renderAll();
       }else{
         localStorage.removeItem("authToken");
-        setAuthMsg("Password salah. Coba lagi.");
+        setNotice("Password salah.");
         updateAuthUI();
       }
-    }catch(e){
-      localStorage.removeItem("authToken");
-      setAuthMsg("Gagal terhubung ke server.");
-      updateAuthUI();
-    }
+    }catch(e){ setNotice("Gagal terhubung server."); }
   }
-
-  function logout(){
-    localStorage.removeItem("authToken");
-    setAuthMsg("Anda telah keluar.");
-    updateAuthUI(); tampilkanLaporan();
-  }
+  function logout(){ localStorage.removeItem("authToken"); setNotice("Anda keluar."); updateAuthUI(); renderAll(); }
 
   function updateAuthUI(){
-    const logged = isLoggedIn();
-    document.getElementById("admin_form").style.display = logged ? "block":"none";
-    document.getElementById("login_btn").style.display = logged ? "none":"inline-block";
-    document.getElementById("logout_btn").style.display = logged ? "inline-block":"none";
-    // Tampilkan/ sembunyikan elemen admin-only (kecuali tombol Simpan)
-    document.querySelectorAll(".admin-only").forEach(n=> n.style.display = logged ? "" : "none");
-    // Laporan keuangan hanya saat login
-    document.getElementById("laporan-keuangan-container").style.display = logged ? "block" : "none";
+    const on=isLoggedIn();
+    document.getElementById("login_btn").style.display=on?"none":"inline-block";
+    document.getElementById("logout_btn").style.display=on?"inline-block":"none";
+    document.getElementById("admin_form").style.display=on?"block":"none";
+    document.getElementById("laporan-keuangan-container").style.display=on?"block":"none";
+    document.querySelectorAll(".admin-only").forEach(n=> n.style.display = on ? "" : "none");
   }
+
+  /* ===== Data helpers ===== */
+  const emptySeason = () => ({
+    customers:{},                // { nama: {kodi_terjual,pembayaran_awal,harga_modal,tanggal_update} }
+    stock_current: 0,            // kodi
+    stock_history: [],           // [{time, note, delta, balance}]
+    fixed_costs: 0               // rupiah
+  });
+
+  const seasons = () => record.seasons || (record.seasons={});
+  const season  = () => seasons()[activeSeasonKey] || (seasons()[activeSeasonKey]=emptySeason());
+
+  function loadSeasonSelectors(){
+    const keys = Object.keys(seasons()).sort();
+    const sel1 = document.getElementById("season_select");
+    const sel2 = document.getElementById("season_select_2");
+    [sel1, sel2].forEach(sel=>{
+      sel.innerHTML = keys.map(k=>`<option ${k===activeSeasonKey?"selected":""}>${k}</option>`).join("");
+    });
+    document.getElementById("season_info").textContent = `Aktif: ${activeSeasonKey}`;
+    document.querySelector("#sales h1").textContent = `Penjualan – ${activeSeasonKey}`;
+  }
+
+  function changeSeason(key){ activeSeasonKey = key; renderAll(); }
 
   /* ===== API proxy via Vercel ===== */
   async function muatData(){
     try{
       const res = await fetch("/api/get");
-      const record = await res.json();
-      dataPelanggan = record || {};
-      // tanggal fallback untuk data lama
-      Object.keys(dataPelanggan).forEach(n=>{
-        if(!dataPelanggan[n].tanggal_update) dataPelanggan[n].tanggal_update = "-";
+      const raw = await res.json();
+      // MIGRASI: jika format lama (langsung daftar pelanggan), bungkus ke seasons["MT2 2025"]
+      if(!raw || typeof raw !== "object"){ record = {seasons:{}}; }
+      else if(!raw.seasons){
+        record = { seasons: { "MT2 2025": { ...emptySeason(), customers: raw } } };
+      }else{
+        record = raw;
+      }
+      // inisialisasi musim penting bila belum ada
+      ["MT1 2023","MT2 2023","MT1 2024","MT2 2024","MT1 2025","MT2 2025"].forEach(k=>{
+        if(!seasons()[k]) seasons()[k]=emptySeason();
       });
-      tampilkanLaporan();
-    }catch(e){
-      console.error("Gagal muat:", e); alert("Gagal memuat data.");
-    }
+      renderAll();
+    }catch(e){ console.error("Gagal muat:", e); alert("Gagal memuat data."); }
   }
-  async function simpanData(){
-    if(!isLoggedIn()){ alert("Silakan login dulu untuk menyimpan."); return; }
+
+  async function simpanRecord(){
+    if(!isLoggedIn()){ alert("Login dulu untuk menyimpan."); return; }
     try{
-      const res = await fetch("/api/update",{
+      const r = await fetch("/api/update",{
         method:"PUT",
-        headers:{
-          "Content-Type":"application/json",
-          "Authorization":"Bearer "+getToken()
-        },
-        body: JSON.stringify({ record: dataPelanggan })
+        headers:{ "Content-Type":"application/json", "Authorization":"Bearer "+getToken() },
+        body: JSON.stringify({ record })
       });
-      if(res.status===401||res.status===403){ alert("Password admin salah / tidak berhak."); return; }
-      if(!res.ok){ console.error(await res.text()); alert("Gagal menyimpan data."); }
-    }catch(e){ console.error(e); alert("Gagal menyimpan data."); }
+      if(!r.ok){ alert("Gagal menyimpan data."); }
+    }catch(e){ alert("Gagal menyimpan data."); }
   }
 
-  /* ===== Fitur aplikasi (konsisten) ===== */
+  /* ======================= PENJUALAN ======================= */
+  function daftarPelanggan(){ return season().customers; }
+
+  // urut: belum lunas di atas
+  function sortedEntries(){
+    return Object.keys(daftarPelanggan()).map(n=>({nama:n, data:daftarPelanggan()[n]})).sort((a,b)=>{
+      const sA = (a.data.kodi_terjual*HARGA_PER_KODI_GLOBAL)-a.data.pembayaran_awal;
+      const sB = (b.data.kodi_terjual*HARGA_PER_KODI_GLOBAL)-b.data.pembayaran_awal;
+      if(sA>0 && sB<=0) return -1; if(sA<=0 && sB>0) return 1; return 0;
+    });
+  }
+
   function tambahData(){
-    if(!isLoggedIn()){ alert("Login dulu untuk menambah data."); return; }
-    const nama = document.getElementById("nama_pelanggan").value.trim();
-    const kodi = parseNumber(document.getElementById("kodi_terjual").value);
-    const bayar = parseNumber(document.getElementById("sudah_bayar").value);
-    const modal = parseNumber(document.getElementById("harga_modal").value);
-    if(!nama || kodi<=0){ alert("Isi nama & kodi yang valid."); return; }
+    if(!isLoggedIn()){ alert("Login dulu."); return; }
+    const nama  = document.getElementById("nama_pelanggan").value.trim();
+    const kodi  = parseNum(document.getElementById("kodi_terjual").value);
+    const bayar = parseNum(document.getElementById("sudah_bayar").value);
+    const modal = parseNum(document.getElementById("harga_modal").value);
+    if(!nama || kodi<=0){ alert("Isi nama & kodi valid."); return; }
 
-    dataPelanggan[nama] = {
-      kodi_terjual: kodi,
-      pembayaran_awal: bayar,
-      harga_modal: modal,
-      tanggal_update: new Date().toLocaleString("id-ID")
-    };
-    simpanData();
-    tampilkanLaporan();
+    // cek stok
+    if(season().stock_current < kodi){
+      alert("Stok tidak cukup. Tambah stok dulu di tab STOK.");
+      return;
+    }
 
-    document.getElementById("nama_pelanggan").value="";
-    document.getElementById("kodi_terjual").value="0";
-    document.getElementById("sudah_bayar").value="0";
-    document.getElementById("harga_modal").value="0";
+    daftarPelanggan()[nama] = {kodi_terjual:kodi,pembayaran_awal:bayar,harga_modal:modal,tanggal_update:nowID()};
+    // kurangi stok + catat
+    season().stock_current -= kodi;
+    season().stock_history.push({time:nowID(), note:`Penjualan ${nama}`, delta:-kodi, balance:season().stock_current});
+
+    simpanRecord(); renderAll();
+
+    ["nama_pelanggan","kodi_terjual","sudah_bayar","harga_modal"].forEach(id=>document.getElementById(id).value = id==="nama_pelanggan"?"":"0");
+  }
+
+  function toggleEdit(nama){
+    if(!isLoggedIn()){ alert("Login dulu untuk edit."); return; }
+    const card = document.querySelector(`.data-item[data-nama="${nama}"]`);
+    card.querySelector(".edit-fields").style.display="block";
+    card.querySelector(".btn-edit").style.display="none";
+    card.querySelector(".btn-save").style.display="inline-block";
+  }
+
+  function simpanEdit(nama){
+    if(!isLoggedIn()){ alert("Login dulu untuk simpan."); return; }
+    const card = document.querySelector(`.data-item[data-nama="${nama}"]`);
+    const baruKodi  = parseNum(card.querySelector(".edit-kodi").value);
+    const baruBayar = parseNum(card.querySelector(".edit-bayar").value);
+    const baruModal = parseNum(card.querySelector(".edit-modal").value);
+
+    if(baruKodi<=0){ alert("Kodi harus > 0"); return; }
+
+    const lamaKodi = daftarPelanggan()[nama].kodi_terjual;
+    const diff = baruKodi - lamaKodi; // + berarti tambah ambil stok; - berarti kembalikan stok
+    if(diff>0 && season().stock_current < diff){
+      alert("Stok tidak cukup untuk penyesuaian kodi. Tambah stok di tab STOK.");
+      return;
+    }
+    // adjust stok & catat
+    if(diff!==0){
+      season().stock_current -= diff;
+      season().stock_history.push({time:nowID(), note:`Edit penjualan ${nama} (${diff>0?"+":""}${diff} kodi)`, delta:-diff, balance:season().stock_current});
+    }
+
+    daftarPelanggan()[nama] = {kodi_terjual:baruKodi,pembayaran_awal:baruBayar,harga_modal:baruModal,tanggal_update:nowID()};
+    simpanRecord(); renderAll();
+  }
+
+  function hapusData(nama){
+    if(!isLoggedIn()){ alert("Login dulu untuk hapus."); return; }
+    if(!confirm(`Hapus data ${nama}?`)) return;
+    const k = daftarPelanggan()[nama]?.kodi_terjual || 0;
+    delete daftarPelanggan()[nama];
+    // kembalikan stok
+    season().stock_current += k;
+    season().stock_history.push({time:nowID(), note:`Hapus penjualan ${nama}`, delta:+k, balance:season().stock_current});
+
+    simpanRecord(); renderAll();
   }
 
   function copyData(nama){
-    const d = dataPelanggan[nama];
-    const totalTagihan = d.kodi_terjual * hargaPerKodi;
-    const sisaUtang = totalTagihan - d.pembayaran_awal;
-    const status = sisaUtang>0 ? "Belum Lunas" : "Lunas";
+    const d = daftarPelanggan()[nama];
+    const totalTagihan = d.kodi_terjual * HARGA_PER_KODI_GLOBAL;
+    const sisaUtang    = totalTagihan - d.pembayaran_awal;
+    const status       = sisaUtang>0 ? "Belum Lunas" : "Lunas";
     const text =
 `Nama: ${nama}
 Kodi: ${d.kodi_terjual}
-Total Bayar: Rp ${formatNumber(totalTagihan)}
-Sudah Bayar: Rp ${formatNumber(d.pembayaran_awal)}
-Sisa Utang: Rp ${formatNumber(sisaUtang)}
+Total Bayar: Rp ${fmt(totalTagihan)}
+Sudah Bayar: Rp ${fmt(d.pembayaran_awal)}
+Sisa Utang: Rp ${fmt(sisaUtang)}
 Status: ${status}
 Tanggal Update: ${d.tanggal_update || "-"}`;
-    navigator.clipboard?.writeText(text)
-      .then(()=>alert("Data disalin ke clipboard."))
-      .catch(()=>{
-        const ta=document.createElement("textarea"); ta.value=text; document.body.appendChild(ta);
-        ta.select(); document.execCommand("copy"); document.body.removeChild(ta);
-        alert("Data disalin ke clipboard.");
-      });
+    navigator.clipboard?.writeText(text).then(()=>alert("Data disalin."));
   }
 
-  function tampilkanLaporan(){
+  /* ======================= STOK ======================= */
+  function tambahStokManual(){
+    if(!isLoggedIn()){ alert("Login dulu."); return; }
+    const tambah = parseNum(document.getElementById("stok_tambah").value);
+    if(tambah<=0){ alert("Masukkan jumlah stok yang valid."); return; }
+    season().stock_current += tambah;
+    season().stock_history.push({time:nowID(), note:"Tambah stok manual", delta:+tambah, balance:season().stock_current});
+    document.getElementById("stok_tambah").value = "0";
+    simpanRecord(); renderAll();
+  }
+
+  /* ======================= ANALITIK MOS ======================= */
+  function simpanFixedCosts(){
+    if(!isLoggedIn()){ alert("Login dulu."); return; }
+    season().fixed_costs = parseNum(document.getElementById("fixed_costs").value);
+    simpanRecord(); hitungAnalitik();
+  }
+
+  function hitungAnalitik(){
+    const {sales, cogs, cmr, bepSales, bepUnits, mos} = kalkulasiMusim();
+    document.getElementById("ana_sales").textContent    = "Rp " + fmt(sales);
+    document.getElementById("ana_cogs").textContent     = "Rp " + fmt(cogs);
+    document.getElementById("ana_cmr").textContent      = (cmr>0? (cmr*100).toFixed(1):0) + "%";
+    document.getElementById("ana_bep_sales").textContent= "Rp " + (bepSales===null?"0":fmt(Math.round(bepSales)));
+    document.getElementById("ana_bep_units").textContent= bepUnits===null? "0" : fmt(Math.ceil(bepUnits));
+    document.getElementById("ana_mos").textContent      = mos===null? "0%" : ((mos*100).toFixed(1)+"%");
+  }
+
+  function kalkulasiMusim(){
+    const items = Object.values(daftarPelanggan());
+    const totalKodi = items.reduce((s,d)=>s+d.kodi_terjual,0);
+    const sales = totalKodi * HARGA_PER_KODI_GLOBAL;
+    const cogs  = items.reduce((s,d)=>s + d.kodi_terjual*(d.harga_modal||0),0);
+    const cm    = sales - cogs;
+    const cmr   = sales>0 ? cm/sales : 0; // contribution margin ratio
+    const FC    = season().fixed_costs || 0;
+    const bepSales = cmr>0 ? FC / cmr : null;
+    const bepUnits = cmr>0 ? bepSales / HARGA_PER_KODI_GLOBAL : null;
+    const mos      = (sales>0 && bepSales!=null) ? (sales - bepSales)/sales : null;
+    return {sales,cogs,cmr,bepSales,bepUnits,mos,totalKodi};
+  }
+
+  /* ======================= RENDER ======================= */
+  function renderSales(){
     const wrap = document.getElementById("daftar_penjualan");
     wrap.innerHTML = "";
-
     let totalOmzet=0, totalUtang=0, totalModal=0, totalKodi=0;
 
-    const arr = Object.keys(dataPelanggan).map(k=>({nama:k, data:dataPelanggan[k]}));
-    // Belum lunas di atas
-    arr.sort((a,b)=>{
-      const sA = (a.data.kodi_terjual*hargaPerKodi)-a.data.pembayaran_awal;
-      const sB = (b.data.kodi_terjual*hargaPerKodi)-b.data.pembayaran_awal;
-      if(sA>0 && sB<=0) return -1;
-      if(sA<=0 && sB>0) return 1;
-      return 0;
-    });
-
-    arr.forEach(({nama,data})=>{
-      const totalTagihan = data.kodi_terjual * hargaPerKodi;
+    sortedEntries().forEach(({nama,data})=>{
+      const totalTagihan = data.kodi_terjual * HARGA_PER_KODI_GLOBAL;
       const sisaUtang = totalTagihan - data.pembayaran_awal;
-      const statusClass = sisaUtang>0 ? "belum-lunas":"lunas";
-      const statusText  = sisaUtang>0 ? "Belum Lunas":"Lunas";
+      const statusClass = sisaUtang>0 ? "belum-lunas" : "lunas";
+      const statusText  = sisaUtang>0 ? "Belum Lunas" : "Lunas";
 
       totalKodi  += data.kodi_terjual;
       totalOmzet += totalTagihan;
       totalUtang += sisaUtang;
-      totalModal += data.kodi_terjual * data.harga_modal;
+      totalModal += data.kodi_terjual * (data.harga_modal||0);
 
       const el = document.createElement("div");
       el.className = `data-item ${statusClass}`;
       el.setAttribute("data-nama", nama);
       el.innerHTML = `
         <p><strong>Nama:</strong> ${nama}</p>
-        <p><strong>Kodi:</strong> ${formatNumber(data.kodi_terjual)}</p>
-        <p><strong>Total Bayar:</strong> <span class="uang">Rp ${formatNumber(totalTagihan)}</span></p>
-        <p><strong>Sudah Bayar:</strong> <span class="uang">Rp ${formatNumber(data.pembayaran_awal)}</span></p>
-        <p><strong>Sisa Utang:</strong> <span class="uang">Rp ${formatNumber(sisaUtang)}</span>
+        <p><strong>Kodi:</strong> ${fmt(data.kodi_terjual)}</p>
+        <p><strong>Total Bayar:</strong> <span class="uang">Rp ${fmt(totalTagihan)}</span></p>
+        <p><strong>Sudah Bayar:</strong> <span class="uang">Rp ${fmt(data.pembayaran_awal)}</span></p>
+        <p><strong>Sisa Utang:</strong> <span class="uang">Rp ${fmt(sisaUtang)}</span>
            <span class="status-badge ${statusText==='Lunas'?'status-lunas':'status-belum'}">${statusText}</span></p>
         <p><strong>Tanggal Update:</strong> ${data.tanggal_update || "-"}</p>
 
@@ -336,7 +543,6 @@ Tanggal Update: ${d.tanggal_update || "-"}`;
                   style="${isLoggedIn()?'':'display:none'}"
                   onclick="toggleEdit('${nama}')">Edit</button>
 
-          <!-- Simpan: tidak punya class admin-only supaya tetap tersembunyi saat tidak edit -->
           <button class="btn btn-green btn-save"
                   style="display:none"
                   onclick="simpanEdit('${nama}')">Simpan</button>
@@ -347,74 +553,76 @@ Tanggal Update: ${d.tanggal_update || "-"}`;
         </div>
 
         <div class="edit-fields">
-          <input type="text" class="edit-kodi"  value="${formatNumber(data.kodi_terjual)}" placeholder="Kodi"/>
-          <input type="text" class="edit-bayar" value="${formatNumber(data.pembayaran_awal)}" placeholder="Sudah Bayar"/>
-          <input type="text" class="edit-modal" value="${formatNumber(data.harga_modal)}" placeholder="Modal/Kodi"/>
+          <input type="text" class="edit-kodi"  value="${fmt(data.kodi_terjual)}" placeholder="Kodi"/>
+          <input type="text" class="edit-bayar" value="${fmt(data.pembayaran_awal)}" placeholder="Sudah Bayar"/>
+          <input type="text" class="edit-modal" value="${fmt(data.harga_modal||0)}" placeholder="Modal/Kodi"/>
         </div>
       `;
       wrap.appendChild(el);
 
-      // format saat edit (kartu)
       el.querySelectorAll(".edit-kodi,.edit-bayar,.edit-modal").forEach(inp=>{
-        inp.addEventListener("input", ()=>{ inp.value = formatNumber(parseNumber(inp.value)); });
+        inp.addEventListener("input", ()=>{ inp.value = fmt(parseNum(inp.value)); });
       });
     });
 
-    const labaKotor = totalOmzet - totalModal;
-    const labaBersih = labaKotor - totalUtang;
-
-    const logged = isLoggedIn();
-    document.getElementById("laporan-keuangan-container").style.display = logged ? "block":"none";
-    if(logged){
-      document.getElementById("total_kodi").innerText  = formatNumber(totalKodi);
-      document.getElementById("omzet").innerText       = "Rp " + formatNumber(totalOmzet);
-      document.getElementById("total_modal").innerText = "Rp " + formatNumber(totalModal);
-      document.getElementById("laba_kotor").innerText  = "Rp " + formatNumber(labaKotor);
-      document.getElementById("laba_bersih").innerText = "Rp " + formatNumber(labaBersih);
-    }
-
-    updateAuthUI(); // sinkron tombol admin-only setelah render
-  }
-
-  function toggleEdit(nama){
-    if(!isLoggedIn()){ alert("Login dulu untuk mengedit."); return; }
-    const card = document.querySelector(`.data-item[data-nama="${nama}"]`);
-    card.querySelector(".edit-fields").style.display="block";
-    const btnEdit = card.querySelector(".btn-edit");
-    const btnSave = card.querySelector(".btn-save");
-    if (btnEdit) btnEdit.style.display="none";
-    if (btnSave) btnSave.style.display="inline-block";
-  }
-
-  function simpanEdit(nama){
-    if(!isLoggedIn()){ alert("Login dulu untuk menyimpan."); return; }
-    const card = document.querySelector(`.data-item[data-nama="${nama}"]`);
-    const kodiBaru  = parseNumber(card.querySelector(".edit-kodi").value);
-    const bayarBaru = parseNumber(card.querySelector(".edit-bayar").value);
-    const modalBaru = parseNumber(card.querySelector(".edit-modal").value);
-    if(kodiBaru<=0){ alert("Kodi harus > 0"); return; }
-
-    dataPelanggan[nama].kodi_terjual    = kodiBaru;
-    dataPelanggan[nama].pembayaran_awal = bayarBaru;
-    dataPelanggan[nama].harga_modal     = modalBaru;
-    dataPelanggan[nama].tanggal_update  = new Date().toLocaleString("id-ID");
-
-    simpanData();
-    tampilkanLaporan();
-  }
-
-  function hapusData(nama){
-    if(!isLoggedIn()){ alert("Login dulu untuk menghapus."); return; }
-    if(confirm(`Hapus data ${nama}?`)){
-      delete dataPelanggan[nama];
-      simpanData();
-      tampilkanLaporan();
+    // laporan keuangan (login saja)
+    if(isLoggedIn()){
+      const labaKotor = totalOmzet - totalModal;
+      const labaBersih = labaKotor - totalUtang;
+      document.getElementById("total_kodi").textContent = fmt(totalKodi);
+      document.getElementById("omzet").textContent      = "Rp " + fmt(totalOmzet);
+      document.getElementById("total_modal").textContent= "Rp " + fmt(totalModal);
+      document.getElementById("laba_kotor").textContent = "Rp " + fmt(labaKotor);
+      document.getElementById("laba_bersih").textContent= "Rp " + fmt(labaBersih);
     }
   }
+
+  function renderStock(){
+    document.getElementById("stock_now").textContent = fmt(season().stock_current) + " kodi";
+    const tbody = document.querySelector("#stok_hist tbody");
+    tbody.innerHTML = season().stock_history.slice().reverse().slice(0,15).map(h=>`
+      <tr><td>${h.time}</td><td>${h.note}</td><td>${h.delta>0?"+":""}${fmt(h.delta)} kodi</td><td>${fmt(h.balance)} kodi</td></tr>
+    `).join("");
+  }
+
+  function renderAnalytics(){
+    document.getElementById("fixed_costs").value    = fmt(season().fixed_costs||0);
+    document.getElementById("harga_kodi_ref").value = fmt(HARGA_PER_KODI_GLOBAL);
+    hitungAnalitik();
+  }
+
+  function renderSeasonControls(){
+    loadSeasonSelectors();
+  }
+
+  function renderAll(){
+    updateAuthUI();
+    renderSeasonControls();
+    renderSales();
+    renderStock();
+    renderAnalytics();
+  }
+
+  /* ======================= MUSIM ======================= */
+  function buatMusimBaru(){
+    const key = document.getElementById("season_add").value;
+    if(!seasons()[key]) seasons()[key]=emptySeason();
+    activeSeasonKey = key;
+    simpanRecord(); renderAll();
+  }
+
+  /* ======================= Tabs ======================= */
+  document.querySelectorAll(".tab").forEach(t=>{
+    t.addEventListener("click", ()=>{
+      document.querySelectorAll(".tab").forEach(el=>el.classList.remove("active"));
+      document.querySelectorAll(".section").forEach(el=>el.classList.remove("active"));
+      t.classList.add("active");
+      document.getElementById(t.dataset.tab).classList.add("active");
+    });
+  });
 
   // init
   wireNumberFormatting();
-  updateAuthUI();
   muatData();
 </script>
 </body>
